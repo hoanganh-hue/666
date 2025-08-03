@@ -1,0 +1,289 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - ZaloPay Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Dashboard</h1>
+            <p class="text-muted">Tổng quan hoạt động hệ thống</p>
+        </div>
+        <div>
+            <select class="form-select" id="dateRange" onchange="updateDashboard()">
+                <option value="7" {{ 'selected' if days == 7 }}>7 ngày qua</option>
+                <option value="30" {{ 'selected' if days == 30 }}>30 ngày qua</option>
+                <option value="90" {{ 'selected' if days == 90 }}>90 ngày qua</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Statistics cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Tổng đối tác
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_partners or 0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-handshake fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Đăng ký chờ duyệt
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.pending_registrations or 0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Xác minh chờ xử lý
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.pending_verifications or 0 }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-shield-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Giao dịch ({{ days }} ngày)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ "{:,}".format(stats.recent_transaction_value|int) }} ₫
+                            </div>
+                            <div class="text-xs text-muted">
+                                {{ stats.recent_transaction_count }} giao dịch
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-credit-card fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Registration Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Đăng ký đối tác theo ngày</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="registrationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Industry Distribution -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Phân bố ngành nghề</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="industryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Activities -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Hoạt động gần đây</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_activities %}
+                        {% for activity in recent_activities %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="bg-primary rounded-circle text-white text-center activity-icon-circle">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="font-weight-bold">{{ activity.admin_user.full_name or activity.admin_user.username }}</div>
+                                <div class="text-muted small">{{ activity.action }}</div>
+                                <div class="text-muted small">{{ activity.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Chưa có hoạt động nào</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Registrations -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Đăng ký mới nhất</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_registrations %}
+                        {% for registration in recent_registrations %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="bg-success rounded-circle text-white text-center registration-icon-circle">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="font-weight-bold">{{ registration.business_name }}</div>
+                                <div class="text-muted small">{{ registration.industry.value }}</div>
+                                <div class="text-muted small">{{ registration.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+                            </div>
+                            <div>
+                                <span class="badge {{ get_status_badge_class(registration.status) }}">
+                                    {{ registration.status }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Chưa có đăng ký nào</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Chart data
+const registrationData = {{ registration_data | tojson }};
+const transactionData = {{ transaction_data | tojson }};
+const industryData = {{ industry_data | tojson }};
+
+// Registration Chart
+const registrationCtx = document.getElementById('registrationChart').getContext('2d');
+const registrationChart = new Chart(registrationCtx, {
+    type: 'line',
+    data: {
+        labels: registrationData.map(item => moment(item.date).format('DD/MM')),
+        datasets: [{
+            label: 'Đăng ký mới',
+            data: registrationData.map(item => item.count),
+            borderColor: '#0068FF',
+            backgroundColor: 'rgba(0, 104, 255, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Industry Chart
+const industryCtx = document.getElementById('industryChart').getContext('2d');
+const industryLabels = {
+    'restaurant': 'Nhà hàng',
+    'retail': 'Bán lẻ', 
+    'services': 'Dịch vụ',
+    'entertainment': 'Giải trí',
+    'online': 'Online',
+    'canteen': 'Căn tin',
+    'parking': 'Bãi đỗ xe',
+    'other': 'Khác'
+};
+
+const industryChart = new Chart(industryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: industryData.map(item => industryLabels[item.industry] || item.industry),
+        datasets: [{
+            data: industryData.map(item => item.count),
+            backgroundColor: [
+                '#0068FF', '#28a745', '#ffc107', '#dc3545',
+                '#6f42c1', '#fd7e14', '#20c997', '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Update dashboard function
+function updateDashboard() {
+    const days = document.getElementById('dateRange').value;
+    window.location.href = `{{ url_for('admin.dashboard') }}?days=${days}`;
+}
+</script>
+{% endblock %}

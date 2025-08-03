@@ -1,0 +1,276 @@
+{% extends "admin/base.html" %}
+
+{% block title %}BeEF Control Panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">BeEF Control Panel</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Hooked Browsers (Zombies)</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="zombiesTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Session ID</th>
+                            <th>IP Address</th>
+                            <th>Browser</th>
+                            <th>OS</th>
+                            <th>Last Seen</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Zombies will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module Execution Modal -->
+<div class="modal fade" id="moduleExecutionModal" tabindex="-1" role="dialog" aria-labelledby="moduleExecutionModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moduleExecutionModalLabel">Execute BeEF Module</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="moduleExecutionForm">
+                    <div class="form-group">
+                        <label for="sessionId">Session ID:</label>
+                        <input type="text" class="form-control" id="sessionId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="moduleCategory">Module Category:</label>
+                        <select class="form-control" id="moduleCategory" onchange="filterModulesByCategory()">
+                            <option value="">Select Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="moduleName">Module Name:</label>
+                        <select class="form-control" id="moduleName" onchange="loadModuleParameters()">
+                            <option value="">Select Module</option>
+                        </select>
+                    </div>
+                    <div id="moduleParameters" class="mt-3">
+                        <!-- Dynamic parameter fields will be loaded here -->
+                    </div>
+                </form>
+                <div id="moduleResult" class="mt-3 alert alert-info" style="white-space: pre-wrap;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                <button class="btn btn-primary" onclick="submitModule()">Execute</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSessionId = null;
+    let allModules = {};
+
+    async function fetchZombies() {
+        try {
+            const response = await fetch('/api/beef/zombies');
+            const data = await response.json();
+            const tbody = document.querySelector('#zombiesTable tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            if (data && data['hooked-browsers']) {
+                data['hooked-browsers'].forEach(zombie => {
+                    const row = `
+                        <tr>
+                            <td>${zombie.session}</td>
+                            <td>${zombie.ip}</td>
+                            <td>${zombie.browser}</td>
+                            <td>${zombie.os}</td>
+                            <td>${zombie.last_seen}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="openModuleExecutionModal('${zombie.session}')">
+                                    Execute Module
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+            } else if (data.error) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error: ${data.error}</td></tr>`;
+            }
+        } catch (error) {
+            console.error('Error fetching zombies:', error);
+            document.querySelector('#zombiesTable tbody').innerHTML = `<tr><td colspan="6" class="text-center text-danger">Error loading zombies: ${error.message}</td></tr>`;
+        }
+    }
+
+    async function fetchModules() {
+        try {
+            const response = await fetch('/api/beef/modules');
+            const data = await response.json();
+            const moduleCategorySelect = document.getElementById('moduleCategory');
+            moduleCategorySelect.innerHTML = '<option value="">Select Category</option>';
+
+            if (data && data.modules) {
+                allModules = data.modules; // Store all modules by category
+                for (const category in data.modules) {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    moduleCategorySelect.appendChild(option);
+                }
+            } else if (data.error) {
+                moduleCategorySelect.innerHTML = `<option value="">Error: ${data.error}</option>`;
+            }
+        } catch (error) {
+            console.error('Error fetching modules:', error);
+            document.getElementById('moduleCategory').innerHTML = `<option value="">Error loading categories: ${error.message}</option>`;
+        }
+    }
+
+    function filterModulesByCategory() {
+        const selectedCategory = document.getElementById('moduleCategory').value;
+        const moduleNameSelect = document.getElementById('moduleName');
+        moduleNameSelect.innerHTML = '<option value="">Select Module</option>';
+        document.getElementById('moduleParameters').innerHTML = ''; // Clear parameters
+
+        if (selectedCategory && allModules[selectedCategory]) {
+            allModules[selectedCategory].forEach(module => {
+                const option = document.createElement('option');
+                option.value = module.name;
+                option.textContent = module.name;
+                moduleNameSelect.appendChild(option);
+            });
+        }
+    }
+
+    async function loadModuleParameters() {
+        const selectedModule = document.getElementById('moduleName').value;
+        const moduleParametersDiv = document.getElementById('moduleParameters');
+        moduleParametersDiv.innerHTML = ''; // Clear previous parameters
+
+        if (!selectedModule) return;
+
+        try {
+            // Find the module ID from allModules structure
+            let moduleId = null;
+            for (const category in allModules) {
+                const module = allModules[category].find(m => m.name === selectedModule);
+                if (module) {
+                    moduleId = module.id;
+                    break;
+                }
+            }
+
+            if (!moduleId) {
+                moduleParametersDiv.innerHTML = '<p class="text-danger">Module ID not found.</p>';
+                return;
+            }
+
+            const response = await fetch(`/api/beef/modules/${moduleId}`);
+            const data = await response.json();
+
+            if (data && data.parameters) {
+                data.parameters.forEach(param => {
+                    const paramDiv = document.createElement('div');
+                    paramDiv.className = 'form-group';
+                    let inputField = '';
+
+                    // Basic input type handling
+                    switch (param.type) {
+                        case 'text':
+                        case 'string':
+                            inputField = `<input type="text" class="form-control" id="param_${param.name}" name="${param.name}" value="${param.value || ''}" placeholder="${param.description || ''}">`;
+                            break;
+                        case 'textarea':
+                            inputField = `<textarea class="form-control" id="param_${param.name}" name="${param.name}" rows="3" placeholder="${param.description || ''}">${param.value || ''}</textarea>`;
+                            break;
+                        case 'boolean':
+                            inputField = `
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="param_${param.name}" name="${param.name}" ${param.value ? 'checked' : ''}>
+                                    <label class="form-check-label" for="param_${param.name}">${param.description || param.name}</label>
+                                </div>
+                            `;
+                            break;
+                        // Add more types as needed (e.g., number, select, radio)
+                        default:
+                            inputField = `<input type="text" class="form-control" id="param_${param.name}" name="${param.name}" value="${param.value || ''}" placeholder="${param.description || ''}">`;
+                    }
+
+                    paramDiv.innerHTML = `
+                        <label for="param_${param.name}">${param.displayName || param.name}:</label>
+                        ${inputField}
+                    `;
+                    moduleParametersDiv.appendChild(paramDiv);
+                });
+            } else if (data.error) {
+                moduleParametersDiv.innerHTML = `<p class="text-danger">Error loading module parameters: ${data.error}</p>`;
+            } else {
+                moduleParametersDiv.innerHTML = '<p class="text-info">No parameters for this module.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading module parameters:', error);
+            moduleParametersDiv.innerHTML = `<p class="text-danger">Error loading module parameters: ${error.message}</p>`;
+        }
+    }
+
+    async function submitModule() {
+        const sessionId = document.getElementById('sessionId').value;
+        const moduleName = document.getElementById('moduleName').value;
+        const moduleResultDiv = document.getElementById('moduleResult');
+        const moduleParametersDiv = document.getElementById('moduleParameters');
+
+        moduleResultDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>';
+
+        const parameters = {};
+        // Collect dynamic parameters
+        moduleParametersDiv.querySelectorAll('input, textarea').forEach(input => {
+            if (input.type === 'checkbox') {
+                parameters[input.name] = input.checked;
+            } else {
+                parameters[input.name] = input.value;
+            }
+        });
+
+        try {
+            const response = await fetch('/admin/beef/execute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    module_name: moduleName,
+                    parameters: parameters
+                })
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                moduleResultDiv.innerHTML = `<p class="text-danger">Error: ${result.error}</p>`;
+            } else {
+                moduleResultDiv.innerHTML = `<pre>${JSON.stringify(result, null, 2)}</pre>`;
+            }
+        } catch (error) {
+            moduleResultDiv.innerHTML = `<p class="text-danger">Error: ${error.message}</p>`;
+            console.error('Error executing module:', error);
+        }
+    }
+
+    // Initial load and periodic refresh
+    document.addEventListener('DOMContentLoaded', () => {
+        fetchZombies();
+        fetchModules();
+        setInterval(fetchZombies, 5000); // Refresh zombies every 5 seconds
+    });
+</script>
+{% endblock %}

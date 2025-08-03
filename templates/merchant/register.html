@@ -1,0 +1,245 @@
+{% extends "merchant/base.html" %}
+
+{% block title %}Đăng ký đối tác - ZaloPay Merchant{% endblock %}
+
+{% block content %}
+    
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-lg border-0 rounded-3">
+                    <div class="card-header bg-primary text-white text-center py-4 rounded-top-3">
+                        <h2 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>Đăng ký trở thành đối tác ZaloPay
+                        </h2>
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+
+                        <form method="POST" enctype="multipart/form-data" id="registrationForm">
+                            <!-- Business Type Selection -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3 fw-bold">Loại hình kinh doanh</h5>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="business_type" id="individual" value="individual" checked>
+                                            <label class="form-check-label" for="individual">
+                                                <strong>Cá nhân / Hộ kinh doanh</strong><br>
+                                                <small class="text-muted">Dành cho cá nhân và hộ kinh doanh</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="business_type" id="enterprise" value="enterprise">
+                                            <label class="form-check-label" for="enterprise">
+                                                <strong>Doanh nghiệp</strong><br>
+                                                <small class="text-muted">Dành cho công ty, tập đoàn</small>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Business Information -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3 fw-bold">Thông tin doanh nghiệp</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="business_name" class="form-label">Tên doanh nghiệp <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="business_name" name="business_name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="industry" class="form-label">Ngành nghề <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="industry" name="industry" required>
+                                            <option value="">Chọn ngành nghề</option>
+                                            <option value="restaurant">Nhà hàng ăn uống</option>
+                                            <option value="retail">Bán lẻ</option>
+                                            <option value="services">Dịch vụ chăm sóc cá nhân</option>
+                                            <option value="entertainment">Giải trí</option>
+                                            <option value="online">Kinh doanh online</option>
+                                            <option value="canteen">Căn tin</option>
+                                            <option value="parking">Bãi đỗ xe</option>
+                                            <option value="other">Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="tax_code" class="form-label">Mã số thuế</label>
+                                        <input type="text" class="form-control" id="tax_code" name="tax_code">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="business_license" class="form-label">Số giấy phép kinh doanh</label>
+                                        <input type="text" class="form-control" id="business_license" name="business_license">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="business_address" class="form-label">Địa chỉ kinh doanh <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="business_address" name="business_address" rows="3" required></textarea>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="business_phone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="business_phone" name="business_phone" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="business_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="business_email" name="business_email" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="website" class="form-label">Website</label>
+                                    <input type="url" class="form-control" id="website" name="website" placeholder="https://">
+                                </div>
+                            </div>
+
+                            <!-- Representative Information -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3 fw-bold">Thông tin người đại diện</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="representative_name" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="representative_name" name="representative_name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="representative_phone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="representative_phone" name="representative_phone" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="representative_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="representative_email" name="representative_email" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="representative_id_number" class="form-label">Số CMND/CCCD <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="representative_id_number" name="representative_id_number" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="representative_position" class="form-label">Chức vụ</label>
+                                    <input type="text" class="form-control" id="representative_position" name="representative_position" placeholder="Giám đốc, Chủ cửa hàng...">
+                                </div>
+                            </div>
+
+                            <!-- Bank Information -->
+                            <div class="mb-4">
+                                <h5 class="text-primary mb-3 fw-bold">Thông tin tài khoản ngân hàng</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bank_name" class="form-label">Tên ngân hàng <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="bank_name" name="bank_name" required>
+                                            <option value="">Chọn ngân hàng</option>
+                                            <option value="Vietcombank">Vietcombank</option>
+                                            <option value="VietinBank">VietinBank</option>
+                                            <option value="BIDV">BIDV</option>
+                                            <option value="Agribank">Agribank</option>
+                                            <option value="Techcombank">Techcombank</option>
+                                            <option value="MB Bank">MB Bank</option>
+                                            <option value="ACB">ACB</option>
+                                            <option value="VPBank">VPBank</option>
+                                            <option value="TPBank">TPBank</option>
+                                            <option value="SHB">SHB</option>
+                                            <option value="HDBank">HDBank</option>
+                                            <option value="OCB">OCB</option>
+                                            <option value="MSB">MSB</option>
+                                            <option value="VIB">VIB</option>
+                                            <option value="Sacombank">Sacombank</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bank_account_number" class="form-label">Số tài khoản <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="bank_account_number" name="bank_account_number" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bank_account_name" class="form-label">Tên chủ tài khoản <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="bank_account_name" name="bank_account_name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="bank_branch" class="form-label">Chi nhánh</label>
+                                        <input type="text" class="form-control" id="bank_branch" name="bank_branch">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Terms and Conditions -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="accept_terms" required>
+                                    <label class="form-check-label" for="accept_terms">
+                                        Tôi đồng ý với <a href="#" target="_blank">Điều khoản sử dụng</a> và 
+                                        <a href="#" target="_blank">Chính sách bảo mật</a> của ZaloPay <span class="text-danger">*</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="accept_marketing">
+                                    <label class="form-check-label" for="accept_marketing">
+                                        Tôi đồng ý nhận thông tin khuyến mãi và cập nhật từ ZaloPay
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Gửi đăng ký
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('registrationForm').addEventListener('submit', function() {
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...';
+    submitBtn.disabled = true;
+    
+    // Reset if there's an error (page reload will handle success)
+    setTimeout(() => {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }, 5000);
+});
+
+// Phone number formatting
+document.querySelectorAll('input[type="tel"]').forEach(function(input) {
+    input.addEventListener('input', function() {
+        // Remove non-digits
+        let value = this.value.replace(/\D/g, '');
+        
+        // Format Vietnamese phone number
+        if (value.length >= 10) {
+            if (value.startsWith('84')) {
+                value = '+84 ' + value.substring(2, 5) + ' ' + value.substring(5, 8) + ' ' + value.substring(8);
+            } else if (value.startsWith('0')) {
+                value = value.substring(0, 4) + ' ' + value.substring(4, 7) + ' ' + value.substring(7);
+            }
+        }
+        
+        this.value = value;
+    });
+});
+</script>
+{% endblock %}

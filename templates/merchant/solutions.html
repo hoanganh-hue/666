@@ -1,0 +1,313 @@
+{% extends "merchant/base.html" %}
+
+{% block title %}Giải pháp thanh toán - ZaloPay Merchant{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5 hero-solutions-bg">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title text-white mb-4">Giải pháp thanh toán toàn diện</h1>
+                <p class="hero-subtitle text-white-50 mb-4 fs-5">Khám phá các giải pháp thanh toán đa dạng, phù hợp với mọi loại hình kinh doanh</p>
+                <div class="hero-stats row g-4 mt-4">
+                    <div class="col-6 col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-white mb-0">50M+</h3>
+                            <small class="text-white-50">Người dùng</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-white mb-0">200K+</h3>
+                            <small class="text-white-50">Đối tác</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-white mb-0">99.9%</h3>
+                            <small class="text-white-50">Uptime</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="text-center">
+                            <h3 class="text-white mb-0">24/7</h3>
+                            <small class="text-white-50">Hỗ trợ</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-image text-center">
+                    <img src="https://scdn.zalopay.com.vn/merchant-web/homepage/imgs/hero-merchant.png" alt="ZaloPay Solutions" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Solutions Grid -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="section-title">Giải pháp thanh toán</h2>
+                <p class="section-subtitle text-muted">Chọn giải pháp phù hợp với loại hình kinh doanh của bạn</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Online Payment -->
+            <div class="col-lg-4 col-md-6">
+                <div class="solution-card h-100">
+                    <div class="solution-icon">
+                        <i class="fas fa-shopping-cart text-primary"></i>
+                    </div>
+                    <h4>Thanh toán Online</h4>
+                    <p class="text-muted">Tích hợp dễ dàng vào website, ứng dụng với API đơn giản và bảo mật cao</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success"></i> Tích hợp API nhanh chóng</li>
+                        <li><i class="fas fa-check text-success"></i> Bảo mật PCI-DSS</li>
+                        <li><i class="fas fa-check text-success"></i> Hỗ trợ đa phương thức</li>
+                        <li><i class="fas fa-check text-success"></i> Dashboard quản lý</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Payment -->
+            <div class="col-lg-4 col-md-6">
+                <div class="solution-card h-100">
+                    <div class="solution-icon">
+                        <i class="fas fa-qrcode text-primary"></i>
+                    </div>
+                    <h4>Thanh toán QR</h4>
+                    <p class="text-muted">Giải pháp thanh toán không tiếp xúc, an toàn và tiện lợi cho cửa hàng</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success"></i> QR tĩnh & động</li>
+                        <li><i class="fas fa-check text-success"></i> Không cần POS</li>
+                        <li><i class="fas fa-check text-success"></i> Thanh toán tức thì</li>
+                        <li><i class="fas fa-check text-success"></i> Quản lý dễ dàng</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POS Payment -->
+            <div class="col-lg-4 col-md-6">
+                <div class="solution-card h-100">
+                    <div class="solution-icon">
+                        <i class="fas fa-credit-card text-primary"></i>
+                    </div>
+                    <h4>Máy POS</h4>
+                    <p class="text-muted">Thiết bị POS hiện đại, hỗ trợ thanh toán thẻ và ví điện tử</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success"></i> Hỗ trợ tất cả thẻ</li>
+                        <li><i class="fas fa-check text-success"></i> Kết nối 4G/WiFi</li>
+                        <li><i class="fas fa-check text-success"></i> Pin sử dụng cả ngày</li>
+                        <li><i class="fas fa-check text-success"></i> Bảo hành 2 năm</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Payment -->
+            <div class="col-lg-4 col-md-6">
+                <div class="solution-card h-100">
+                    <div class="solution-icon">
+                        <i class="fas fa-mobile-alt text-primary"></i>
+                    </div>
+                    <h4>In-App Payment</h4>
+                    <p class="text-muted">SDK tích hợp thanh toán trực tiếp trong ứng dụng mobile</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success"></i> SDK Android/iOS</li>
+                        <li><i class="fas fa-check text-success"></i> UI/UX tối ưu</li>
+                        <li><i class="fas fa-check text-success"></i> One-touch payment</li>
+                        <li><i class="fas fa-check text-success"></i> Tài liệu chi tiết</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recurring Payment -->
+            <div class="col-lg-4 col-md-6">
+                <div class="solution-card h-100">
+                    <div class="solution-icon">
+                        <i class="fas fa-sync-alt text-primary"></i>
+                    </div>
+                    <h4>Thanh toán định kỳ</h4>
+                    <p class="text-muted">Tự động thu phí định kỳ cho dịch vụ subscription</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success"></i> Tự động hóa</li>
+                        <li><i class="fas fa-check text-success"></i> Linh hoạt chu kỳ</li>
+                        <li><i class="fas fa-check text-success"></i> Retry thông minh</li>
+                        <li><i class="fas fa-check text-success"></i> Báo cáo chi tiết</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Đăng ký ngay</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enterprise Solution -->
+            <div class="col-lg-4 col-md-6">
+                <div class="solution-card h-100">
+                    <div class="solution-icon">
+                        <i class="fas fa-building text-primary"></i>
+                    </div>
+                    <h4>Giải pháp Enterprise</h4>
+                    <p class="text-muted">Giải pháp tùy chỉnh cho doanh nghiệp lớn với yêu cầu đặc thù</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check text-success"></i> Tùy chỉnh theo yêu cầu</li>
+                        <li><i class="fas fa-check text-success"></i> Dedicated support</li>
+                        <li><i class="fas fa-check text-success"></i> SLA cao nhất</li>
+                        <li><i class="fas fa-check text-success"></i> Tích hợp ERP</li>
+                    </ul>
+                    <div class="mt-auto">
+                        <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Liên hệ tư vấn</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Integration Steps -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="section-title">Quy trình tích hợp</h2>
+                <p class="section-subtitle text-muted">4 bước đơn giản để bắt đầu nhận thanh toán</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">01</div>
+                    <h5>Đăng ký tài khoản</h5>
+                    <p class="text-muted">Tạo tài khoản merchant và cung cấp thông tin doanh nghiệp</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">02</div>
+                    <h5>Xác minh thông tin</h5>
+                    <p class="text-muted">Upload tài liệu và hoàn thành quy trình xác minh</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">03</div>
+                    <h5>Tích hợp API</h5>
+                    <p class="text-muted">Sử dụng tài liệu API để tích hợp vào hệ thống</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">04</div>
+                    <h5>Go Live</h5>
+                    <p class="text-muted">Chuyển sang môi trường production và bắt đầu nhận thanh toán</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center mb-5">
+                <h2 class="section-title">Bảng phí dịch vụ</h2>
+                <p class="section-subtitle text-muted">Minh bạch, cạnh tranh và không phí ẩn</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h4>Starter</h4>
+                        <div class="pricing-rate">
+                            <span class="rate">2.9%</span>
+                            <small>/ giao dịch</small>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check text-success"></i> API thanh toán cơ bản</li>
+                        <li><i class="fas fa-check text-success"></i> Dashboard quản lý</li>
+                        <li><i class="fas fa-check text-success"></i> Hỗ trợ email</li>
+                        <li><i class="fas fa-check text-success"></i> Báo cáo cơ bản</li>
+                    </ul>
+                    <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Bắt đầu</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Phổ biến</div>
+                    <div class="pricing-header">
+                        <h4>Business</h4>
+                        <div class="pricing-rate">
+                            <span class="rate">2.5%</span>
+                            <small>/ giao dịch</small>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check text-success"></i> Tất cả tính năng Starter</li>
+                        <li><i class="fas fa-check text-success"></i> Webhook & callback</li>
+                        <li><i class="fas fa-check text-success"></i> Hỗ trợ phone & chat</li>
+                        <li><i class="fas fa-check text-success"></i> Báo cáo nâng cao</li>
+                        <li><i class="fas fa-check text-success"></i> Multi-account</li>
+                    </ul>
+                    <a href="{{ url_for('merchant.register_form') }}" class="btn btn-primary w-100">Chọn gói này</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h4>Enterprise</h4>
+                        <div class="pricing-rate">
+                            <span class="rate">Tùy chỉnh</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check text-success"></i> Tất cả tính năng Business</li>
+                        <li><i class="fas fa-check text-success"></i> Dedicated support</li>
+                        <li><i class="fas fa-check text-success"></i> SLA 99.9%</li>
+                        <li><i class="fas fa-check text-success"></i> Custom integration</li>
+                        <li><i class="fas fa-check text-success"></i> Priority processing</li>
+                    </ul>
+                    <a href="{{ url_for('merchant.register_form') }}" class="btn btn-outline-primary w-100">Liên hệ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 cta-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h3 class="text-white mb-2">Sẵn sàng bắt đầu nhận thanh toán?</h3>
+                <p class="text-white-50 mb-0">Tham gia cùng hàng nghìn doanh nghiệp đang sử dụng ZaloPay</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('merchant.register_form') }}" class="btn btn-light btn-lg">Đăng ký miễn phí</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

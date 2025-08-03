@@ -1,0 +1,144 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Nhật ký hoạt động - ZaloPay Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">Nhật ký hoạt động</h1>
+            <p class="text-muted">Theo dõi các hoạt động của quản trị viên hệ thống</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="action" class="form-label">Hành động</label>
+                    <select class="form-select" id="action" name="action">
+                        <option value="">Tất cả</option>
+                        {% for action_type in ['login', 'logout', 'create_user', 'edit_user', 'activate_user', 'deactivate_user', 'approve_verification', 'reject_verification'] %}
+                        <option value="{{ action_type }}" {{ 'selected' if action_filter == action_type }}>
+                            {{ action_type.replace('_', ' ').title() }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i>Lọc
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activity Logs table -->
+    <div class="card">
+        <div class="card-header">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Danh sách nhật ký 
+                <span class="badge bg-secondary">{{ logs.total }} mục</span>
+            </h6>
+        </div>
+        <div class="card-body">
+            {% if logs.items %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Admin</th>
+                            <th>Hành động</th>
+                            <th>Loại tài nguyên</th>
+                            <th>ID tài nguyên</th>
+                            <th>Chi tiết</th>
+                            <th>IP</th>
+                            <th>User Agent</th>
+                            <th>Thời gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs.items %}
+                        <tr>
+                            <td>{{ log.id }}</td>
+                            <td>{{ log.admin_user.username if log.admin_user else 'N/A' }}</td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.resource_type or '-' }}</td>
+                            <td>{{ log.resource_id or '-' }}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 250px;" title="{{ log.details }}">
+                                    {{ log.details or '-' }}
+                                </div>
+                            </td>
+                            <td>{{ log.ip_address or '-' }}</td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 150px;" title="{{ log.user_agent }}">
+                                    {{ log.user_agent or '-' }}
+                                </div>
+                            </td>
+                            <td>{{ log.created_at | datetime }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if logs.pages > 1 %}
+            <nav aria-label="Activity log pagination">
+                <ul class="pagination justify-content-center">
+                    {% if logs.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.activity_logs', page=logs.prev_num, action=action_filter) }}">
+                            Trước
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in logs.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != logs.page %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin.activity_logs', page=page_num, action=action_filter) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">…</span>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if logs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin.activity_logs', page=logs.next_num, action=action_filter) }}">
+                            Tiếp
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Không có nhật ký hoạt động nào</h5>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

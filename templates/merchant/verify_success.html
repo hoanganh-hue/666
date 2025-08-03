@@ -1,0 +1,31 @@
+{% extends "merchant/base.html" %}
+
+{% block title %}Xác minh thành công - ZaloPay Merchant Portal{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="fw-bold mb-0"><i class="fas fa-check-circle me-2"></i>Yêu cầu xác minh đã gửi!</h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="lead text-center mb-4">
+                        Yêu cầu xác minh của bạn đã được gửi thành công.
+                    </p>
+                    <p class="text-center text-muted">
+                        Mã yêu cầu xác minh của bạn là: <strong class="text-primary">#{{ verification.id }}</strong>
+                    </p>
+                    <p class="text-center">
+                        Chúng tôi sẽ xem xét yêu cầu của bạn và thông báo kết quả sớm nhất có thể.
+                    </p>
+                    <div class="d-grid mt-4">
+                        <a href="{{ url_for('merchant.index') }}" class="btn btn-primary btn-lg">Quay về trang chủ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
